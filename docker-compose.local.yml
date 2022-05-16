@@ -13,3 +13,17 @@ services:
       - 8000:8000
     entrypoint: ["sh", "/srv/entrypoint.local.sh"]
     command: python3 manage.py runserver 0.0.0.0:8000
+
+  frontend: # very inefficient
+    image: wf-local
+    container_name: wf-local-container
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    volumes:
+      - ./frontend/simple-app/:/usr/app/
+    ports:
+      - 3000:3000
+    command: yarn start
+
+  

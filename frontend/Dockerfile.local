@@ -1,0 +1,5 @@
+FROM node:16.13.1
+
+WORKDIR /usr/app
+
+CMD ["yarn ", "start"]

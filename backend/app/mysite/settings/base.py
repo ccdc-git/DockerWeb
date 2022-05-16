@@ -11,22 +11,36 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import json
+import os
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+with open("secret.json") as file:
+    secrets = json.load(file)
+
+
+def get_secret(setting: str, secret_key: dict = secrets):
+    try:
+        return secret_key[setting]
+    except KeyError as err:
+        error_msg = f"Set the {setting} in secret.json file"
+        raise ImproperlyConfigured(error_msg) from err
+
+
+def get_env(name: str):
+    try:
+        return os.environ[name]
+    except KeyError as err:
+        error_msg = f"Set the {name} environ variable"
+        raise ImproperlyConfigured(error_msg) from err
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "4$*8_k5^!dnsjac(*)439=r$n7#2%d&ow$)-tedyg3n)+*u4t3"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -69,17 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "mysite.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 
 # Password validation

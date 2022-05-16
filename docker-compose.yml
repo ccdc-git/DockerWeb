@@ -1,0 +1,51 @@
+version: '3.7'
+
+services:
+  backend:
+    container_name: wb-prod-con
+    image: wb-prod
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: gunicorn mysite.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    depends_on:
+      - db
+    # ports:
+    #   - 8000:8000
+    entrypoint: ["sh", "./entrypoint.sh"]
+    environment:
+      - DJANGO_SETTINGS_MODULE=mysite.settings.prod
+      - DATABASE=mysql
+      - SQL_HOST=mysql.prod
+      - SQL_PORT=3306
+
+  db:
+    image: mysql:8.0.29
+    container_name: mysql.prod
+    env_file:
+      - ./.env-db.prod
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+
+  frontend:
+    container_name: wf-prod-con
+    image: wf-prod
+    build:
+      context: ./frontend
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 80:80
+    depends_on:
+      - db
+      - backend
+    command: nginx -g "daemon off;"
+
+volumes:
+  mysql_data_prod:
+  static_volume:
