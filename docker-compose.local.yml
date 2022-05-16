@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  backend:
+    image: wb-local
+    container_name: wb-local-container
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.local
+    volumes:
+      - ./backend/:/srv/
+    ports:
+      - 8000:8000
+    entrypoint: ["sh", "/srv/entrypoint.local.sh"]
+    command: python3 manage.py runserver 0.0.0.0:8000
